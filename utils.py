@@ -26,7 +26,7 @@ import numpy as np
 from skimage import io
 import matplotlib.pyplot as plt
 
-def produce_plots(input_image, dom_image, overall_image):
+def produce_plots(input_image, dom_image, avg_image, overall_image):
     """ Takes an an input image and outputs:
          - Dominant Color Image
          - Overall Summary of Colors Image
@@ -44,13 +44,10 @@ def produce_plots(input_image, dom_image, overall_image):
     img = raw[mid_y-450:mid_y-175, mid_x-500:mid_x+800]
 
     # Show Cropping
-    # debug = False
-    # if debug == True:
-    #     print(raw.shape, img.shape)
-    #     plt.figure(figsize=(20,10))
-    #     plt.subplot(121), plt.imshow(raw), plt.axis('off') 
-    #     plt.subplot(122), plt.imshow(img), plt.axis('off') 
-    #     plt.show()
+    # plt.figure(figsize=(20,10))
+    # plt.subplot(121), plt.imshow(raw), plt.axis('off')
+    # plt.subplot(122), plt.imshow(img), plt.axis('off')
+    # plt.show()
 
     # Find the top N colors by k-means clustering 
     pixels = np.float32(img.reshape(-1, 3))
@@ -77,7 +74,11 @@ def produce_plots(input_image, dom_image, overall_image):
     im_rgb = cv2.cvtColor(output_test, cv2.COLOR_BGR2RGB)
     cv2.imwrite(dom_image, im_rgb)
 
-    indices = np.argsort(counts)[::-1]   
+    output_test = np.ones(shape=(675,1200,3), dtype=np.uint8)*np.uint8(np.round(average))
+    im_rgb = cv2.cvtColor(output_test, cv2.COLOR_BGR2RGB)
+    cv2.imwrite(avg_image, im_rgb)
+
+    indices = np.argsort(counts)[::-1]
     freqs = np.cumsum(np.hstack([[0], counts[indices]/float(counts.sum())]))
     rows = np.int_(output_shape[0]*freqs)
 
@@ -97,7 +98,10 @@ def produce_plots(input_image, dom_image, overall_image):
     ax2.axis('off')
     plt.savefig(overall_image)
 
-    return dom_hex
+    return dom_hex, avg_hex
 
 if __name__ == "__main__":
-    dom_color = produce_plots("./example/example.png", "./example/dominant.png", "./example/overall.png")
+    dom_color, avg_color = produce_plots("./example/example.png",
+                                         "./example/dominant.png",
+                                         "./example/average.png",
+                                         "./example/overall.png")

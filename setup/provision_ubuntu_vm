@@ -1,0 +1,103 @@
+#!/bin/bash
+
+
+
+sudo apt update
+
+
+
+# Install xrdp
+
+sudo apt install -y xrdp
+
+sudo systemctl enable --now xrdp
+
+sudo adduser xrdp ssl-cert
+
+sudo ufw allow 3389/tcp
+
+sudo iptables -A INPUT -p tcp --dport 3389 -j ACCEPT
+
+sudo /etc/init.d/xrdp restart
+
+
+
+# Install Desktop
+
+sudo apt-get install -y tasksel
+
+sudo apt-get install -y slim
+
+sudo tasksel
+
+echo gnome-session >~/.xsession
+
+sudo apt-get install -y gnome-schedule
+
+sudo service xrdp restart
+
+
+
+# Install cmake + gcc
+
+sudo apt install -y build-essential cmake
+
+
+
+# Enable RDP
+
+echo "Install Azure CLI Tools from: https://aka.ms/installazurecliwindows"
+
+echo "Run this command in power shell: az vm open-port --resource-group myResourceGroup --name myVM --port 3389"
+
+pause
+
+
+
+# Install Anaconda
+
+sudo apt install libgl1-mesa-glx libegl1-mesa libxrandr2 libxrandr2 libxss1 libxcursor1 libxcomposite1 libasound2 libxi6 libxtst6
+
+wget -P /tmp https://repo.anaconda.com/archive/Anaconda3-2020.02-Linux-x86_64.sh
+
+bash /tmp/Anaconda3-2020.02-Linux-x86_64.sh
+
+
+
+# Install Chrome
+
+wget -P /tmp https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+
+sudo apt install /tmp/google-chrome-stable_current_amd64.deb
+
+
+
+# Install NodeJS
+
+sudo apt install -y nodejs npm
+
+npm install puppeteer
+
+
+
+# Install VSCode
+
+wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > packages.microsoft.gpg
+
+sudo install -o root -g root -m 644 packages.microsoft.gpg /etc/apt/trusted.gpg.d/
+
+sudo sh -c 'echo "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/trusted.gpg.d/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" > /etc/apt/sources.list.d/vscode.list'
+
+rm -f packages.microsoft.gpg
+
+sudo apt install -y apt-transport-https
+
+sudo apt update
+
+sudo apt install -y code
+
+
+
+echo "Run: source ~/.bashrc"
+
+echo "Run: conda config --set auto_activate_base false"

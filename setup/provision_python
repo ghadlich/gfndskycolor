@@ -1,0 +1,6 @@
+#!/bin/bash
+
+conda create -n PythonDevEnv python=3.7
+conda init
+conda activate PythonDevEnv
+pip install -r requirements.txt
