@@ -180,6 +180,8 @@ def produce_plots(input_image, dom_image, avg_image, overall_image):
     ax2.axis('off')
     plt.savefig(overall_image)
 
+    plt.close('all')
+
     return dom_hex, avg_hex, color_list
 
 if __name__ == "__main__":
