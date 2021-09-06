@@ -28,10 +28,25 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 import os
 from twitterutils.twitterutils import tweet
+from sun_data import CityObserver, SunData
 
+# Globals
 image_dir = "./images"
 raw_dir = os.path.join(image_dir, "raw")
 processed_dir = os.path.join(image_dir, "daily")
+
+def get_time_schedule():
+    # Get current day, set at 17:00 UTC for middle of the day
+    day = datetime.now().strftime("%Y/%m/%d 17:00")
+
+    # Grand Forks, ND Lat, Long, Elev (Meters)
+    observer = CityObserver('47.925259', '-97.032852', 257, day)
+
+    # Compute Sun Data
+    sun_data = SunData(observer)
+
+    # Return Time Schedule
+    return sun_data.get_time_list()
 
 def capture_image(filename):
     """ Captures an image using NodeJS and Puppeteer and saves it to a png file """
@@ -98,6 +113,54 @@ def capture_image_and_tweet():
         print(f"Failed Run: {time_ran}\n" + str(e))
 
     return
+
+def tweet_civil_twilight_start():
+    """ Sends a tweet about civil twilight starting """
+    try:
+        now = datetime.now()
+
+        time_ran = now.strftime("%-I:%M %p")
+
+        tweet_text = f"It is now Civil Twilight at {time_ran} in Grand Forks, ND"
+        tweet(tweet_text, enable_tweet=True)
+    except Exception as e:
+        print(f"Failed Run: {time_ran}\n" + str(e))
+
+def tweet_sunrise():
+    """ Sends a tweet about sunrise """
+    try:
+        now = datetime.now()
+
+        time_ran = now.strftime("%-I:%M %p")
+
+        tweet_text = f"The sun has now risen at {time_ran} in Grand Forks, ND"
+        tweet(tweet_text, enable_tweet=True)
+    except Exception as e:
+        print(f"Failed Run: {time_ran}\n" + str(e))
+
+def tweet_sunset():
+    """ Sends a tweet about sunset """
+    try:
+        now = datetime.now()
+
+        time_ran = now.strftime("%-I:%M %p")
+
+        tweet_text = f"The sun has now set at {time_ran} in Grand Forks, ND"
+        tweet(tweet_text, enable_tweet=True)
+    except Exception as e:
+        print(f"Failed Run: {time_ran}\n" + str(e))
+
+def tweet_civil_twilight_end():
+    """ Sends a tweet about civil twilight ending """
+    try:
+        now = datetime.now()
+
+        time_ran = now.strftime("%-I:%M %p")
+
+        tweet_text = f"Civil Twilight has now ended at {time_ran} in Grand Forks, ND"
+        tweet(tweet_text, enable_tweet=True)
+    except Exception as e:
+        print(f"Failed Run: {time_ran}\n" + str(e))
 
 def produce_plots(input_image, dom_image, avg_image, overall_image):
     """ Takes an an input image and outputs:
