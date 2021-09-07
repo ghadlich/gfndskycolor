@@ -241,8 +241,8 @@ def produce_plots(input_image, dom_image, avg_image, overall_image):
     ax2.imshow(all_patch)
     ax2.set_title(f'Top {len(color_list)} Colors', fontsize=20)
     ax2.axis('off')
+    fig.tight_layout(rect=[0, 0.03, 1, 0.95])
     plt.savefig(overall_image)
-
     plt.close('all')
 
     return dom_hex, avg_hex, color_list
