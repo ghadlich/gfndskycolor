@@ -22,7 +22,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE. 
 import ephem
+import time
 from datetime import datetime, timezone, timedelta
+import matplotlib.pyplot as plt
+import numpy as np
 
 class CityObserver:
     def __init__(self, lat, long, elev, day):
@@ -55,11 +58,12 @@ class CityObserver:
     def get_city(self):
         return self.city
 
-
-
 class SunData:
     def __init__(self, observer):
         sun = ephem.Sun()
+
+        # Save off observer
+        self.observer = observer
 
         # Get Civil Twilight Start and end
         observer.set_horizon_civil_twilight()
@@ -147,6 +151,93 @@ class SunData:
         """
         return self.sunrise_time_str, self.sunset_time_str, self.day_length
 
+    def create_daylight_plot(self, output_file, day = datetime.now()):
+        """ Creates a daylight plot for the current day """
+        city = self.observer.get_city()
+
+        # Get current day and UTC Offset as ephem only works with UTC
+        current_local_time = time.localtime()
+        utc_offset = 0
+        if current_local_time.tm_isdst == 1:
+            utc_offset = 5
+        else:
+            utc_offset = 6
+
+        # Find Midnight UTC
+        midnight_utc = datetime(day.year, day.month, day.day, utc_offset, 0, 0, 0)
+
+        sun = ephem.Sun()
+
+        # Set up x/y and labels
+        x = range(24*60)
+        y = []
+        x_raw_label = []
+        x_labels = []
+
+        # Create temp variable for loop
+        current_time = midnight_utc
+
+        # Cycle through each hour to get sun position
+        for i in x:
+            city.date = current_time.strftime("%Y/%m/%d %H:%M")
+
+            # Every hour create an x-tick
+            if (i % 60 == 0):
+                x_raw_label.append(i)
+                x_labels.append((current_time - timedelta(hours=utc_offset)).strftime("%-I:%M %p"))
+
+            sun.compute(city)
+
+            # Compute altitude angle and convert to decimal
+            alt = str(sun.alt)
+            deg, m, s = alt.split(":")
+            deg, m, s = int(deg), float(m), float(s)
+
+            if "-" in alt:
+                sign = -1
+            else:
+                sign = 1
+
+            deg = sign * (abs(deg) + m/60 + s/3600)
+
+            # Add decimal degrees to y axis list
+            y.append(deg)
+
+            # Increment Time
+            current_time += timedelta(minutes=1)
+
+        # Add Final Label
+        x_raw_label.append(x[-1])
+        x_labels.append((current_time - timedelta(hours=utc_offset)).strftime("%-I:%M %p"))
+
+        # Create Plot
+        plt.figure(figsize=(16,9))
+        plt.title(f"Daylight in Grand Forks, ND on {midnight_utc.strftime('%Y-%m-%d')}", fontsize=20)
+        plt.plot(x,y, 'k--', linewidth=0)
+        plt.ylim([-70,70])
+        plt.xlim([x[0], x[-1]])
+        plt.xticks(x_raw_label, x_labels, rotation=45, ha="right", fontsize=15)
+        plt.yticks(fontsize=15)
+        plt.ylabel("Sun Elevation ($^\circ$)", fontsize=20)
+        plt.xlabel("@gfndskycolor", fontsize=10)
+        plt.tight_layout()
+
+        # Fill in the colors of the plot
+        y = np.array(y)
+        plt.fill_between(x, y, 0,
+                        where=(y < 0),
+                        alpha=0.70, color='black', interpolate=True)
+        plt.fill_between(x, y, 0,
+                        where=(y >= 0),
+                        alpha=1.0, color='#88a9d2', interpolate=True)
+
+        # Save Figure
+        plt.savefig(output_file)
+        # plt.show()
+        plt.close()
+
+        return
+
 
 if __name__ == "__main__":
     # Get current day, set at 17:00 UTC for middle of the day
@@ -162,3 +253,6 @@ if __name__ == "__main__":
     print(setting_time)
     print(day_length)
     print(sun_data.get_time_list())
+
+    # Create Plot of Today
+    sun_data.create_daylight_plot("./test.png")
