@@ -121,7 +121,7 @@ def tweet_civil_twilight_start():
 
         time_ran = now.strftime("%-I:%M %p")
 
-        tweet_text = f"It is now Civil Twilight at {time_ran} in Grand Forks, ND"
+        tweet_text = f"Civil Twilight has started at {time_ran} in Grand Forks, ND"
         tweet(tweet_text, enable_tweet=True)
     except Exception as e:
         print(f"Failed Run: {time_ran}\n" + str(e))

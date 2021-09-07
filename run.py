@@ -36,7 +36,12 @@ def create_schedule():
     """
     Creates a dynamic schedule based on twilight and sunrise/sunset
     """
+    # Clear Queue and Reschedule This Task
+    schedule.clear()
+    schedule.every().day.at("03:15").do(create_schedule)
+
     sched = get_time_schedule()
+    print(sched)
 
     schedule.every().day.at(sched[0]).do(run_twilight_start)
     sched.pop(0)
@@ -100,6 +105,9 @@ if __name__ == "__main__":
 
     # Set an event to schedule the day
     schedule.every().day.at("03:15").do(create_schedule)
+
+    # Run the scheduler now in case script is run in middle of day.
+    schedule.run_all()
 
     while True:
         schedule.run_pending()
