@@ -24,7 +24,7 @@ function timeout(ms) {
     await page.keyboard.press('k');
     await timeout(1000)
     await page.keyboard.press('f');
-    await timeout(45000)
+    await timeout(60000)
     await page.screenshot({path: output_file});
     browser.close();
 
