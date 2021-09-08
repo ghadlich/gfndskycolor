@@ -48,6 +48,88 @@ def get_time_schedule():
     # Return Time Schedule
     return sun_data.get_time_list()
 
+def create_day_color_and_tweet():
+    """ Creates a sky color representation plot and tweet it """
+    now = datetime.now()
+
+    baseline_filename = now.strftime("%Y_%m_%d_%H_%M")
+    baseline_folder = now.strftime("%Y_%m_%d")
+    time_ran = now.strftime("%-I:%M %p")
+
+    try:
+        # Set Up Directories and Target Files
+        raw_daily_directory = os.path.join(raw_dir, baseline_folder)
+        processed_daily_directory = os.path.join(processed_dir, baseline_folder)
+
+        os.makedirs(raw_daily_directory, exist_ok=True)
+        os.makedirs(processed_daily_directory, exist_ok=True)
+
+        daylight_file = os.path.join(processed_daily_directory, baseline_filename+"_daylight.png")
+
+        # Get current day, set at 17:00 UTC for middle of the day
+        day = now.strftime("%Y/%m/%d 17:00")
+
+        # Grand Forks, ND Lat, Long, Elev (Meters)
+        observer = CityObserver('47.925259', '-97.032852', 257, day)
+
+        # Compute Sun Data
+        sun_data = SunData(observer)
+
+        # List Filenames
+        filenames = []
+        for _, _, files in os.walk(processed_daily_directory, topdown=False):
+            for name in files:
+                if "dom" in name:
+                    filenames.append(name)
+
+        # Create Plot of Today
+        if (len(filenames) == 0):
+            custom_colors = None
+        else:
+            # Initialize Colors
+            cvals = [0]
+            colors = ["#000000"]
+
+            for filename in filenames:
+                # Split filename, ex: 2021_09_07_20_27_dom.png
+                _, _, _, hour, minute, _ = filename.split("_")
+                hour, minute = int(hour), int(minute)
+
+                # Extract Color
+                filename = os.path.join(processed_daily_directory, filename)
+                raw = io.imread(filename)[:, :, :-1]
+                pixels = np.float32(raw.reshape(-1, 3))
+
+                hex_color = '#%02x%02x%02x' % tuple(np.uint8(np.round(pixels[0])))
+                cvals.append(int(hour*60+minute))
+                colors.append(hex_color)
+                # print(hex_color)
+
+            cvals.append(int(60*24-1))
+            colors.append("#000000")
+
+            custom_colors = dict()
+            custom_colors['cvals'] = cvals
+            custom_colors['colors'] = colors
+
+        # Create Plot
+        sun_data.create_daylight_plot(daylight_file, custom_colors=custom_colors)
+
+        # Tweet Image
+        if (custom_colors == None):
+            tweet_text = f"Daylight in Grand Forks, ND on {now.strftime('%Y-%m-%d')}"
+        else:
+            tweet_text = f"Dominant Colors of the Sky in Grand Forks, ND on {now.strftime('%Y-%m-%d')}"
+
+        tweet(tweet_text, image_path=daylight_file, enable_tweet=True)
+
+        print(f"Successful Run: {time_ran}")
+
+    except Exception as e:
+        print(f"Failed Run: {time_ran}\n" + str(e))
+
+    return
+
 def capture_image(filename):
     """ Captures an image using NodeJS and Puppeteer and saves it to a png file """
 
@@ -207,12 +289,24 @@ def produce_plots(input_image, dom_image, avg_image, overall_image):
     dom_patch = np.ones(shape=output_shape, dtype=np.uint8)*np.uint8(np.round(dominant))
 
     output_test = np.ones(shape=(675,1200,3), dtype=np.uint8)*np.uint8(np.round(dominant))
-    im_rgb = cv2.cvtColor(output_test, cv2.COLOR_BGR2RGB)
-    cv2.imwrite(dom_image, im_rgb)
+    plt.imsave(dom_image, output_test, format="png")
+
+    # Check what was written was correct
+    # r = io.imread(dom_image)[:, :, :-1]
+    # p = np.float32(r.reshape(-1, 3))
+
+    # hex_color = '#%02x%02x%02x' % tuple(np.uint8(np.round(p[0])))
+    # assert(hex_color == dom_hex)
 
     output_test = np.ones(shape=(675,1200,3), dtype=np.uint8)*np.uint8(np.round(average))
-    im_rgb = cv2.cvtColor(output_test, cv2.COLOR_BGR2RGB)
-    cv2.imwrite(avg_image, im_rgb)
+    plt.imsave(avg_image, output_test, format="png")
+
+    # Check what was written was correct
+    # r = io.imread(avg_image)[:, :, :-1]
+    # p = np.float32(r.reshape(-1, 3))
+
+    # hex_color = '#%02x%02x%02x' % tuple(np.uint8(np.round(p[0])))
+    # assert(hex_color == avg_hex)
 
     indices = np.argsort(counts)[::-1]
     freqs = np.cumsum(np.hstack([[0], counts[indices]/float(counts.sum())]))

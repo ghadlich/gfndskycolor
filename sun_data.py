@@ -24,6 +24,7 @@
 import ephem
 import time
 from datetime import datetime, timezone, timedelta
+import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -151,7 +152,7 @@ class SunData:
         """
         return self.sunrise_time_str, self.sunset_time_str, self.day_length
 
-    def create_daylight_plot(self, output_file, day = datetime.now()):
+    def create_daylight_plot(self, output_file, day = datetime.now(), custom_colors=None):
         """ Creates a daylight plot for the current day """
         city = self.observer.get_city()
 
@@ -223,13 +224,34 @@ class SunData:
         plt.tight_layout()
 
         # Fill in the colors of the plot
+        x = np.array(x)
         y = np.array(y)
         plt.fill_between(x, y, 0,
                         where=(y < 0),
-                        alpha=0.70, color='black', interpolate=True)
-        plt.fill_between(x, y, 0,
-                        where=(y >= 0),
-                        alpha=1.0, color='#88a9d2', interpolate=True)
+                        alpha=0.85, color='black', interpolate=True)
+
+        # Custom Color Map if Data is Available
+        if (custom_colors != None):
+            norm=plt.Normalize(
+                        np.min(x),
+                        np.max(x))
+
+            cvals = custom_colors['cvals']
+            colors = custom_colors['colors']
+
+            tuples = list(zip(map(norm,cvals), colors))
+            cmap = matplotlib.colors.LinearSegmentedColormap.from_list("", tuples)
+
+            for i in x:
+                plt.fill_between(x, y, 0,
+                                where=((y >= 0) & (x==i)),
+                                alpha=1.0, color=cmap(norm(i)), interpolate=True)
+
+            plt.title(f"Dominant Colors of the Sky for Grand Forks, ND on {midnight_utc.strftime('%Y-%m-%d')}", fontsize=20)
+        else:
+            plt.fill_between(x, y, 0,
+                            where=(y >= 0),
+                            alpha=1.0, color='#88a9d2', interpolate=True)
 
         # Save Figure
         plt.savefig(output_file)
@@ -255,4 +277,11 @@ if __name__ == "__main__":
     print(sun_data.get_time_list())
 
     # Create Plot of Today
-    sun_data.create_daylight_plot("./test.png")
+    cvals  = [0, 6*60+54, 8*60, 9*60, 10*60, 11*60, 12*60, 13*60, 14*60, 15*60, 16*60, 17*60, 18*60, 19*60,19*60+56, 1439]
+    colors = ["#000000", "#9e9dad", "#719ed2", "#5c8abf", "#4c81bd", "#3c74b3", "#4d81bb", "#4170aa", "#999cab", "#9b9ca7", "#818da3", "#6787ae", "#5a779b", "#4d6684", "#a1abb7", "#000000"]
+
+    custom_colors = dict()
+    custom_colors['cvals'] = cvals
+    custom_colors['colors'] = colors
+
+    sun_data.create_daylight_plot("./test.png", custom_colors=custom_colors)

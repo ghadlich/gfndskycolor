@@ -23,6 +23,7 @@
 # THE SOFTWARE. 
 from utils import produce_plots
 from utils import capture_image_and_tweet
+from utils import create_day_color_and_tweet
 
 import schedule
 from time import sleep
@@ -77,7 +78,9 @@ def run_sunset():
 def run_twilight_end():
     """ Sends a tweet about the end of civil twilight and captures image """
     tweet_civil_twilight_end()
-    return run_tweeter()
+    capture_image_and_tweet()
+    create_day_color_and_tweet()
+    return schedule.CancelJob
 
 def run_tweeter():
     """ Captures image and sends tweet """
