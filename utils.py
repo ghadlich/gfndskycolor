@@ -82,6 +82,8 @@ def create_day_color_and_tweet():
                 if "dom" in name:
                     filenames.append(name)
 
+        filenames.sort()
+
         # Create Plot of Today
         if (len(filenames) == 0):
             custom_colors = None
