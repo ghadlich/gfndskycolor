@@ -152,8 +152,13 @@ class SunData:
         """
         return self.sunrise_time_str, self.sunset_time_str, self.day_length
 
-    def create_daylight_plot(self, output_file, day = datetime.now(), custom_colors=None):
+    def create_daylight_plot(self, output_file, day = None, custom_colors=None):
         """ Creates a daylight plot for the current day """
+
+        # Get current day
+        if day == None:
+            day = datetime.now()
+
         city = self.observer.get_city()
 
         # Get current day and UTC Offset as ephem only works with UTC
