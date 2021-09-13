@@ -96,7 +96,7 @@ sudo apt update
 
 sudo apt install -y code
 
-
+sudo apt install -y ffmpeg
 
 echo "Run: source ~/.bashrc"
 
