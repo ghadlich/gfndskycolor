@@ -12,3 +12,6 @@ The utility takes in an input image, extracts the interesting part of the sky an
 
 #### Dominant Color
 ![Dominant Color](/example/dominant.png)
+
+#### Colors Throughout the Day
+![Colors Throughout the Day](/example/day_colors.png)
