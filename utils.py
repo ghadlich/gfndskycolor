@@ -29,6 +29,7 @@ from datetime import datetime
 import os
 from twitterutils.twitterutils import tweet
 from sun_data import CityObserver, SunData
+from web_utils import download_images_and_create_animation
 
 # Globals
 image_dir = "./images"
@@ -243,6 +244,23 @@ def tweet_civil_twilight_end():
 
         tweet_text = f"Civil Twilight has now ended at {time_ran} in Grand Forks, ND"
         tweet(tweet_text, enable_tweet=True)
+    except Exception as e:
+        print(f"Failed Run: {time_ran}\n" + str(e))
+
+def tweet_aurora_forcast():
+    """ Sends a tweet about the aurora forcast """
+    try:
+        now = datetime.now()
+        time_ran = now.strftime("%-I:%M %p")
+
+        base_url = "https://services.swpc.noaa.gov/images/animations/ovation/north/"
+        destination_folder = "./animation/aurora/" + now.strftime("%Y-%m-%d")
+        output_filename = "animation.mp4"
+        framerate = 60
+        filename = download_images_and_create_animation(base_url, destination_folder, output_filename, framerate=framerate, hold_last_frame_duration_s=3)
+
+        tweet_text = f"Here is tonight's #NorthernLights forecast for North America.\nImages from NOAA Space Weather Prediction Center\n#Space #Aurora"
+        tweet(tweet_text, image_path=filename, enable_tweet=True)
     except Exception as e:
         print(f"Failed Run: {time_ran}\n" + str(e))
 
