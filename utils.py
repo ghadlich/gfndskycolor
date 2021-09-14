@@ -33,6 +33,7 @@ from web_utils import download_images_and_create_animation
 
 # Globals
 image_dir = "./images"
+animation_dir = "./animations"
 raw_dir = os.path.join(image_dir, "raw")
 processed_dir = os.path.join(image_dir, "daily")
 
@@ -248,13 +249,13 @@ def tweet_civil_twilight_end():
         print(f"Failed Run: {time_ran}\n" + str(e))
 
 def tweet_aurora_forcast():
-    """ Sends a tweet about the aurora forcast """
+    """ Sends a tweet about the aurora forecast """
     try:
         now = datetime.now()
         time_ran = now.strftime("%-I:%M %p")
 
         base_url = "https://services.swpc.noaa.gov/images/animations/ovation/north/"
-        destination_folder = "./animation/aurora/" + now.strftime("%Y-%m-%d")
+        destination_folder = os.path.join(animation_dir, "aurora", now.strftime("%Y-%m-%d"))
         output_filename = "animation.mp4"
         framerate = 60
         filename = download_images_and_create_animation(base_url, destination_folder, output_filename, framerate=framerate, hold_last_frame_duration_s=3)
