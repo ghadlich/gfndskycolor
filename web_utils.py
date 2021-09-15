@@ -57,7 +57,9 @@ def download_images_and_create_animation(base_url, destination_folder, output_fi
     # Retreive the images
     for image in image_list:
         try:
-            urlretrieve(base_url + image, os.path.join(destination_folder, image))
+            save_path = os.path.join(destination_folder, image)
+            if (not os.path.exists(save_path)):
+                urlretrieve(base_url + image, os.path.join(destination_folder, save_path))
             count += 1
         except:
             #print(f"Failed: {base_url + image}")
