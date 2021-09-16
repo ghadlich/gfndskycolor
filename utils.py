@@ -260,8 +260,12 @@ def tweet_aurora_forcast():
         framerate = 60
         filename = download_images_and_create_animation(base_url, destination_folder, output_filename, framerate=framerate, hold_last_frame_duration_s=3)
 
-        tweet_text = f"Here is tonight's #NorthernLights forecast for North America.\nImages from NOAA Space Weather Prediction Center\n#Space #Aurora"
-        tweet(tweet_text, image_path=filename, enable_tweet=True)
+        if (filename != None):
+            tweet_text = f"Here is tonight's #NorthernLights forecast for North America.\nImages from NOAA Space Weather Prediction Center\n#Space #Aurora"
+            tweet(tweet_text, image_path=filename, enable_tweet=True)
+        else:
+            print(f"Failed Run: {time_ran} - no aurora animation created")
+
     except Exception as e:
         print(f"Failed Run: {time_ran}\n" + str(e))
 
