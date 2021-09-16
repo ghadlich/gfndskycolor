@@ -33,6 +33,7 @@ from utils import tweet_sunrise
 from utils import tweet_sunset
 from utils import tweet_civil_twilight_end
 from utils import tweet_aurora_forcast
+from utils import tweet_lasco
 
 def create_schedule():
     """
@@ -57,6 +58,8 @@ def create_schedule():
 
     for t in sched:
         schedule.every().day.at(t).do(run_tweeter)
+
+    schedule.every().day.at("19:45").do(run_lasco)
 
     schedule.every().day.at("23:00").do(run_aurora)
 
@@ -90,30 +93,17 @@ def run_aurora():
     tweet_aurora_forcast()
     return schedule.CancelJob
 
+def run_lasco():
+    """ Sends a tweet about the Sun's Corona """
+    tweet_lasco()
+    return schedule.CancelJob
+
 def run_tweeter():
     """ Captures image and sends tweet """
     capture_image_and_tweet()
     return schedule.CancelJob
 
 if __name__ == "__main__":
-    # schedule.every().day.at("06:00").do(capture_image_and_tweet)
-    # schedule.every().day.at("07:00").do(capture_image_and_tweet)
-    # schedule.every().day.at("08:00").do(capture_image_and_tweet)
-    # schedule.every().day.at("09:00").do(capture_image_and_tweet)
-    # schedule.every().day.at("10:00").do(capture_image_and_tweet)
-    # schedule.every().day.at("11:00").do(capture_image_and_tweet)
-    # schedule.every().day.at("12:00").do(capture_image_and_tweet)
-    # schedule.every().day.at("13:00").do(capture_image_and_tweet)
-    # schedule.every().day.at("14:00").do(capture_image_and_tweet)
-    # schedule.every().day.at("15:00").do(capture_image_and_tweet)
-    # schedule.every().day.at("16:00").do(capture_image_and_tweet)
-    # schedule.every().day.at("17:00").do(capture_image_and_tweet)
-    # schedule.every().day.at("18:00").do(capture_image_and_tweet)
-    # schedule.every().day.at("19:00").do(capture_image_and_tweet)
-    # schedule.every().day.at("20:00").do(capture_image_and_tweet)
-    # schedule.every().day.at("21:00").do(capture_image_and_tweet)
-    # schedule.every().day.at("22:00").do(capture_image_and_tweet)
-
     # Set an event to schedule the day
     schedule.every().day.at("03:15").do(create_schedule)
 
