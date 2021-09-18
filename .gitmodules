@@ -1,3 +1,6 @@
 [submodule "twitterutils"]
 	path = twitterutils
 	url = https://github.com/ghadlich/twitterutils
+[submodule "webutils"]
+	path = webutils
+	url = https://github.com/ghadlich/webutils

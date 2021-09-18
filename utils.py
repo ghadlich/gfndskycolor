@@ -21,7 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE. 
-import cv2
+from cv2 import cv2
 import numpy as np
 from skimage import io
 import matplotlib.pyplot as plt
@@ -29,7 +29,7 @@ from datetime import datetime
 import os
 from twitterutils.twitterutils import tweet
 from sun_data import CityObserver, SunData
-from web_utils import download_images_and_create_animation
+from webutils import download_images_and_create_animation
 
 # Globals
 image_dir = "./images"
@@ -104,7 +104,7 @@ def create_day_color_and_tweet():
                 raw = io.imread(filename)[:, :, :-1]
                 pixels = np.float32(raw.reshape(-1, 3))
 
-                hex_color = '#%02x%02x%02x' % tuple(np.uint8(np.round(pixels[0])))
+                hex_color = '#%02x%02x%02x' % tuple(np.uint8(np.round(pixels[0]))) # pylint: disable=E1136  # pylint/issues/3139
                 cvals.append(int(hour*60+minute))
                 colors.append(hex_color)
                 # print(hex_color)
@@ -383,7 +383,7 @@ def produce_plots(input_image, dom_image, avg_image, overall_image):
 
     all_patch = np.zeros(shape=output_shape, dtype=np.uint8)
     for i in range(len(rows) - 1):
-        all_patch[rows[i]:rows[i + 1], :, :] += np.uint8(palette[indices[i]])
+        all_patch[rows[i]:rows[i + 1], :, :] += np.uint8(palette[indices[i]])  # pylint: disable=E1136  # pylint/issues/3139
 
     fig, (ax0, ax1, ax2) = plt.subplots(1, 3, figsize=(16,9))
     ax0.imshow(avg_patch)
