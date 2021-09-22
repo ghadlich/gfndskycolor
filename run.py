@@ -21,7 +21,6 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE. 
-from utils import produce_plots
 from utils import capture_image_and_tweet
 from utils import create_day_color_and_tweet
 
@@ -33,7 +32,6 @@ from utils import tweet_sunrise
 from utils import tweet_sunset
 from utils import tweet_civil_twilight_end
 from utils import tweet_aurora_forcast
-from utils import tweet_lasco
 
 def create_schedule():
     """
@@ -58,8 +56,6 @@ def create_schedule():
 
     for t in sched:
         schedule.every().day.at(t).do(run_tweeter)
-
-    schedule.every().day.at("19:45").do(run_lasco)
 
     schedule.every().day.at("23:00").do(run_aurora)
 
@@ -91,11 +87,6 @@ def run_twilight_end():
 def run_aurora():
     """ Sends a tweet about the aurora forecast """
     tweet_aurora_forcast()
-    return schedule.CancelJob
-
-def run_lasco():
-    """ Sends a tweet about the Sun's Corona """
-    tweet_lasco()
     return schedule.CancelJob
 
 def run_tweeter():

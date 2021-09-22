@@ -269,41 +269,6 @@ def tweet_aurora_forcast():
     except Exception as e:
         print(f"Failed Run: {time_ran}\n" + str(e))
 
-def tweet_lasco():
-    """ Sends a tweet about the SOHO Sun Observatory """
-    try:
-        now = datetime.now()
-        time_ran = now.strftime("%-I:%M %p")
-
-        base_url = "https://services.swpc.noaa.gov/images/animations/lasco-c3/lasco/"
-        destination_folder = os.path.join(animation_dir, "lasco3", now.strftime("%Y-%m-%d"))
-        output_filename = "animation.mp4"
-        framerate = 30
-        lasco3_filename = download_images_and_create_animation(base_url, destination_folder, output_filename, framerate=framerate)
-
-        base_url = "https://services.swpc.noaa.gov/images/animations/lasco-c2/lasco/"
-        destination_folder = os.path.join(animation_dir, "lasco2", now.strftime("%Y-%m-%d"))
-        lasco2_filename = download_images_and_create_animation(base_url, destination_folder, output_filename, framerate=framerate)
-
-        previous_id = None
-
-        # If lasco-3 animation available, tweet it
-        if (lasco3_filename != None):
-            tweet_text = f"Here is today's LASCO-C3 #Coronagraph of the #Sun taken from #SOHO!\nImages from NOAA Space Weather Prediction Center via #NASA and #ESA\n#Space #CME"
-            previous_id = tweet(tweet_text, image_path=lasco3_filename, enable_tweet=True)
-        else:
-            print(f"Failed Run: {time_ran} - no LASCO-C3 animation created")
-
-        # If lasco-2 animation available, tweet it
-        if (lasco2_filename != None):
-            tweet_text = f"Here is today's LASCO-C2 #Coronagraph of the #Sun taken from #SOHO!\nImages from NOAA Space Weather Prediction Center via #NASA and #ESA\n#Space #CME"
-            tweet(tweet_text, image_path=lasco2_filename, in_reply_to_status_id=previous_id, enable_tweet=True)
-        else:
-            print(f"Failed Run: {time_ran} - no LASCO-C2 animation created")
-
-    except Exception as e:
-        print(f"Failed Run: {time_ran}\n" + str(e))
-
 def produce_plots(input_image, dom_image, avg_image, overall_image):
     """ Takes an an input image and outputs:
          - Dominant Color Image
