@@ -362,6 +362,7 @@ def produce_plots(input_image, dom_image, avg_image, overall_image):
     ax2.axis('off')
     fig.tight_layout(rect=[0, 0.03, 1, 0.95])
     plt.savefig(overall_image)
+    fig.clear()
     plt.close('all')
 
     return dom_hex, avg_hex, color_list
