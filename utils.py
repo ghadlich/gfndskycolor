@@ -25,7 +25,7 @@ from cv2 import cv2
 import numpy as np
 from skimage import io
 import matplotlib.pyplot as plt
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 from twitterutils.twitterutils import tweet
 from sun_data import CityObserver, SunData
@@ -37,12 +37,20 @@ animation_dir = "./animations"
 raw_dir = os.path.join(image_dir, "raw")
 processed_dir = os.path.join(image_dir, "daily")
 
-def get_time_schedule():
-    # Get current day, set at 17:00 UTC for middle of the day
-    day = datetime.now().strftime("%Y/%m/%d 17:00")
+def _get_observer_on_day(now):
+    """ Retrieves a city observer on a given day in Grand Forks, ND """
+    # Set to middle of day UTC
+    day = now.strftime("%Y/%m/%d 17:00")
 
-    # Grand Forks, ND Lat, Long, Elev (Meters)
-    observer = CityObserver('47.925259', '-97.032852', 257, day)
+    return CityObserver('47.925259', '-97.032852', 257, day)
+
+def get_time_schedule():
+    """ Retrieves time schedule based on the sun """
+    # Get current day
+    now = datetime.now()
+
+    # Get Observer
+    observer = _get_observer_on_day(now)
 
     # Compute Sun Data
     sun_data = SunData(observer)
@@ -68,11 +76,8 @@ def create_day_color_and_tweet():
 
         daylight_file = os.path.join(processed_daily_directory, baseline_filename+"_daylight.png")
 
-        # Get current day, set at 17:00 UTC for middle of the day
-        day = now.strftime("%Y/%m/%d 17:00")
-
-        # Grand Forks, ND Lat, Long, Elev (Meters)
-        observer = CityObserver('47.925259', '-97.032852', 257, day)
+        # Get Observer
+        observer = _get_observer_on_day(now)
 
         # Compute Sun Data
         sun_data = SunData(observer)
@@ -212,14 +217,64 @@ def tweet_civil_twilight_start():
     except Exception as e:
         print(f"Failed Run: {time_ran}\n" + str(e))
 
+def _get_sunrise_sunset_times(day):
+    """ Returns sunrise time, sunset time, and daylight length in seconds """
+    # Get Observer
+    observer = _get_observer_on_day(day)
+
+    # Compute Sun Data
+    sun_data = SunData(observer)
+
+    # Compute Length of Day
+    return sun_data.get_sunrise_sunset()
+
 def tweet_sunrise():
-    """ Sends a tweet about sunrise """
+    """ Sends a tweet about sunrise and length of day """
     try:
         now = datetime.now()
-
         time_ran = now.strftime("%-I:%M %p")
 
-        tweet_text = f"The sun has now risen at {time_ran} in Grand Forks, ND"
+        day_length_text = ""
+        additional_info_text = ""
+
+        month = now.strftime("%m")
+
+        # Only do last/next day of length in the fat part of the time change
+        decreasing_months = ["08", "09", "10", "11"]
+        increasing_months = ["02", "03", "04", "05"]
+
+        # Compute Length of Day
+        sunrise_time, _, day_length_today = _get_sunrise_sunset_times(now)
+        day_length_today_str = (now.replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(seconds=day_length_today)).strftime("%-H:%M:%S")
+        day_length_text = f"\n\nThe amount of daylight today will be {day_length_today_str}."
+
+        # Add in additional data such as the last or next day that will have this length is
+        if month in decreasing_months:
+            # Find the next day that has at least this length
+            current_day_length = day_length_today - 1
+            current_day = now
+
+            while current_day_length < day_length_today:
+                current_day = current_day + timedelta(hours=24)
+                _, _, current_day_length = _get_sunrise_sunset_times(current_day)
+
+            d_string = current_day.strftime("%B %-d, %Y")
+
+            additional_info_text = f"\n\nThe days are getting shorter, the next day we'll see the same amount of light is {d_string}."
+        elif month in increasing_months:
+            # Find the last day that has at least this length
+            current_day_length = day_length_today - 1
+            current_day = now
+
+            while current_day_length < day_length_today:
+                current_day = current_day - timedelta(hours=24)
+                _, _, current_day_length = _get_sunrise_sunset_times(current_day)
+
+            d_string = current_day.strftime("%B %-d, %Y")
+
+            additional_info_text = f"\n\nThe days are getting longer, the last day we saw the same amount of light was {d_string}."
+
+        tweet_text = f"The sun has now risen at {sunrise_time} in Grand Forks, ND!{day_length_text}{additional_info_text}".strip()
         tweet(tweet_text, enable_tweet=True)
     except Exception as e:
         print(f"Failed Run: {time_ran}\n" + str(e))
