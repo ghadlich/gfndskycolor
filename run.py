@@ -33,10 +33,15 @@ from utils import tweet_sunset
 from utils import tweet_civil_twilight_end
 from utils import tweet_aurora_forcast
 
+import gc
+
 def create_schedule():
     """
     Creates a dynamic schedule based on twilight and sunrise/sunset
     """
+    # Garbage Collect
+    gc.collect()
+
     # Clear Queue and Reschedule This Task
     schedule.clear()
     schedule.every().day.at("03:15").do(create_schedule)
