@@ -30,6 +30,7 @@ import os
 from twitterutils.twitterutils import tweet
 from sun_data import CityObserver, SunData
 from webutils import download_images_and_create_animation
+from webutils import download_json
 
 # Globals
 image_dir = "./images"
@@ -149,6 +150,21 @@ def capture_image(filename):
 
     return True
 
+def _get_color_info(color_hex):
+    """ Returns Additional Color Links """
+    text = ""
+
+    # Check if Color Is Named
+    color_name = download_json(f"https://colornames.org/search/json/?hex={color_hex[1:]}")
+
+    if color_name != None and "name" in color_name and color_name["name"] != None:
+        name = color_name["name"]
+        text +=  f"\n\nAccording to the community at colornames.org, this color is named \"{name}\""
+
+    text +=  f"\n\nRead more about this color: https://encycolorpedia.com/{color_hex[1:]}"
+
+    return text
+
 def capture_image_and_tweet():
     """ Captures an image and tweets the colors """
  
@@ -191,11 +207,11 @@ def capture_image_and_tweet():
         previous_id = tweet(tweet_text, image_path=overall_file, enable_tweet=True)
 
         # Tweet Average Graphic
-        tweet_text =  f"The average color of the sky in Grand Forks, ND at {time_ran} is {avg_color}. Read more about this color: https://encycolorpedia.com/{avg_color[1:]}"
+        tweet_text =  f"The average color of the sky in Grand Forks, ND at {time_ran} is {avg_color}.{_get_color_info(avg_color)}"
         previous_id = tweet(tweet_text, image_path=avg_file, in_reply_to_status_id=previous_id, enable_tweet=True)
 
         # Tweet Dominant Graphic
-        tweet_text =  f"The dominant color of the sky in Grand Forks, ND at {time_ran} is {dom_color}. Read more about this color: https://encycolorpedia.com/{dom_color[1:]}"
+        tweet_text =  f"The dominant color of the sky in Grand Forks, ND at {time_ran} is {dom_color}.{_get_color_info(dom_color)}"
         previous_id = tweet(tweet_text, image_path=dom_file, in_reply_to_status_id=previous_id, enable_tweet=True)
 
         print(f"Successful Run: {time_ran}")
@@ -460,3 +476,5 @@ if __name__ == "__main__":
                                                      "./example/dominant.png",
                                                      "./example/average.png",
                                                      "./example/overall.png")
+
+    print(_get_color_info("#4c80bd"))
