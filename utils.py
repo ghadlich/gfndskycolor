@@ -279,14 +279,47 @@ def tweet_sunrise():
     except Exception as e:
         print(f"Failed Run: {time_ran}\n" + str(e))
 
+def _get_mins_and_secs_str_from_secs(delta):
+    """ Returns minutes and seconds from a seconds number """
+    mins = round(delta / 60)
+    secs = round(delta-mins*60)
+
+    if (secs == 60):
+        mins += 1
+        secs -= 60
+
+    time_text = (f"{mins} minute" if mins > 0 else "") + ("s" if mins > 1 else "") + \
+                (" and " if mins > 0 and secs > 0 else "") + \
+                (f"{secs} second" if secs > 0 else "") + ("s" if secs > 1 else "")
+
+    return time_text
+
 def tweet_sunset():
     """ Sends a tweet about sunset """
     try:
         now = datetime.now()
-
         time_ran = now.strftime("%-I:%M %p")
 
-        tweet_text = f"The sun has now set at {time_ran} in Grand Forks, ND"
+        day_length_text = ""
+
+        # Compute Length of Day
+        _, sunset_time, day_length_today = _get_sunrise_sunset_times(now)
+        _, _, day_length_tomorrow = _get_sunrise_sunset_times(now+timedelta(hours=24))
+
+        # Convert to mins and secs
+        time_text = _get_mins_and_secs_str_from_secs(abs(day_length_tomorrow - day_length_today))
+
+        if (time_text == ""):
+            time_text = "a few milliseconds"
+
+        if (day_length_today < day_length_tomorrow):
+            direction, increment = "increasing", "longer"
+        else:
+            direction, increment = "decreasing", "shorter"
+
+        day_length_text = f"\n\nThe amount of daylight will be {direction} tomorrow as the daytime with be {increment} by {time_text}."
+
+        tweet_text = f"The sun has now set at {sunset_time} in Grand Forks, ND!{day_length_text}".strip()
         tweet(tweet_text, enable_tweet=True)
     except Exception as e:
         print(f"Failed Run: {time_ran}\n" + str(e))
