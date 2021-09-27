@@ -276,7 +276,7 @@ def tweet_sunrise():
 
             d_string = current_day.strftime("%B %-d, %Y")
 
-            additional_info_text = f"\n\nThe days are getting shorter, the next day we'll see the same amount of light is {d_string}."
+            additional_info_text = f"\n\nThe days are getting shorter, the next day we'll see the same amount of daylight is {d_string}."
         elif month in increasing_months:
             # Find the last day that has at least this length
             current_day_length = day_length_today - 1
@@ -288,7 +288,7 @@ def tweet_sunrise():
 
             d_string = current_day.strftime("%B %-d, %Y")
 
-            additional_info_text = f"\n\nThe days are getting longer, the last day we saw the same amount of light was {d_string}."
+            additional_info_text = f"\n\nThe days are getting longer, the last day we saw the same amount of daylight was {d_string}."
 
         tweet_text = f"The sun has now risen at {sunrise_time} in Grand Forks, ND!{day_length_text}{additional_info_text}".strip()
         tweet(tweet_text, enable_tweet=True)
@@ -333,7 +333,7 @@ def tweet_sunset():
         else:
             direction, increment = "decreasing", "shorter"
 
-        day_length_text = f"\n\nThe amount of daylight will be {direction} tomorrow as the daytime with be {increment} by {time_text}."
+        day_length_text = f"\n\nThe amount of daylight will be {direction} tomorrow as the daytime will be {increment} by {time_text}."
 
         tweet_text = f"The sun has now set at {sunset_time} in Grand Forks, ND!{day_length_text}".strip()
         tweet(tweet_text, enable_tweet=True)
