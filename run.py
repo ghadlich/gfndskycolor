@@ -62,7 +62,11 @@ def create_schedule():
     for t in sched:
         schedule.every().day.at(t).do(run_tweeter)
 
+    # Run Aurora Forcast
+    schedule.every().day.at("21:00").do(run_aurora)
     schedule.every().day.at("23:00").do(run_aurora)
+    schedule.every().day.at("01:00").do(run_aurora)
+    schedule.every().day.at("03:00").do(run_aurora)
 
     # This job will be scheduled forever
     return

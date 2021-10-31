@@ -217,7 +217,7 @@ class SunData:
         x_labels.append((current_time - timedelta(hours=utc_offset)).strftime("%-I:%M %p"))
 
         # Create Plot
-        plt.figure(figsize=(16,9))
+        fig = plt.figure(figsize=(16,9))
         plt.title(f"Daylight in Grand Forks, ND on {midnight_utc.strftime('%Y-%m-%d')}", fontsize=20)
         plt.plot(x,y, 'k--', linewidth=0)
         plt.ylim([-70,70])
@@ -261,7 +261,8 @@ class SunData:
         # Save Figure
         plt.savefig(output_file)
         # plt.show()
-        plt.close()
+        fig.clear()
+        plt.close('all')
 
         return
 

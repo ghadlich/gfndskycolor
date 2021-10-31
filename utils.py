@@ -27,6 +27,7 @@ from skimage import io
 import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
 import os
+import shutil
 from twitterutils.twitterutils import tweet
 from sun_data import CityObserver, SunData
 from webutils import download_images_and_create_animation
@@ -364,11 +365,23 @@ def tweet_aurora_forcast():
         framerate = 60
         filename = download_images_and_create_animation(base_url, destination_folder, output_filename, framerate=framerate, hold_last_frame_duration_s=3)
 
+        previous_id = None
+
+        # Tweet Latest Image
+        latest_file = os.path.join(destination_folder, "latest.jpg")
+        if (os.path.exists(latest_file)):
+            tweet_text = f"Here is the latest #NorthernLights forecast for North America. Animation of last 24 hours in replies!\nImage from NOAA Space Weather Prediction Center\n#Space #Aurora #SWPC #NOAA"
+            previous_id = tweet(tweet_text, image_path=latest_file, enable_tweet=True)
+
+        # Tweet Animation
         if (filename != None):
-            tweet_text = f"Here is tonight's #NorthernLights forecast for North America.\nImages from NOAA Space Weather Prediction Center\n#Space #Aurora"
-            tweet(tweet_text, image_path=filename, enable_tweet=True)
+            tweet_text = f"Here is an animation of the last 24 hours of #NorthernLights forecasts for North America.\nImages from NOAA Space Weather Prediction Center\n#Space #Aurora #SWPC #NOAA"
+            tweet(tweet_text, image_path=filename, in_reply_to_status_id=previous_id, enable_tweet=True)
         else:
             print(f"Failed Run: {time_ran} - no aurora animation created")
+
+        # Remove Files for Storage Space
+        shutil.rmtree(destination_folder, ignore_errors=True)
 
     except Exception as e:
         print(f"Failed Run: {time_ran}\n" + str(e))
