@@ -20,8 +20,13 @@ function timeout(ms) {
 
     try {
       const page = await browser.newPage();
+
+      // Set Timeout to Load to 5 mins
+      await page.setDefaultNavigationTimeout(300000);
       //await page.setViewport({width: 5960, height: 1000})
+      //ND Mill:
       await page.goto('https://www.youtube.com/watch?v=OEvLTpOKWDM');
+      //West Facing UND Cam: await page.goto('https://www.youtube.com/watch?v=mpcvRHLGBRw');
       await timeout(5000)
       await page.keyboard.press('k');
       await timeout(1000)

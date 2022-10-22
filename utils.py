@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-# Copyright (c) 2021 Grant Hadlich
+# Copyright (c) 2021-2022 Grant Hadlich
 #
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -401,7 +401,7 @@ def produce_plots(input_image, dom_image, avg_image, overall_image):
     # Slice Out Interesting Part
     mid_y = int(raw.shape[0]/2)
     mid_x = int(raw.shape[1]/2)
-    img = raw[mid_y-450:mid_y-175, mid_x-500:mid_x+800]
+    img = raw[mid_y-450:mid_y-175, max(mid_x-500,0):min(mid_x+800, raw.shape[1])]
 
     # Show Cropping
     # plt.figure(figsize=(20,10))

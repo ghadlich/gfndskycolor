@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-# Copyright (c) 2021 Grant Hadlich
+# Copyright (c) 2021-2022 Grant Hadlich
 #
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -63,9 +63,13 @@ def create_schedule():
         schedule.every().day.at(t).do(run_tweeter)
 
     # Run Aurora Forcast
+    schedule.every().day.at("19:00").do(run_aurora)
     schedule.every().day.at("21:00").do(run_aurora)
+    schedule.every().day.at("22:00").do(run_aurora)
     schedule.every().day.at("23:00").do(run_aurora)
+    schedule.every().day.at("00:01").do(run_aurora)
     schedule.every().day.at("01:00").do(run_aurora)
+    schedule.every().day.at("02:00").do(run_aurora)
     schedule.every().day.at("03:00").do(run_aurora)
 
     # This job will be scheduled forever

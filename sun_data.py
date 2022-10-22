@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-# Copyright (c) 2021 Grant Hadlich
+# Copyright (c) 2021-2022 Grant Hadlich
 #
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
