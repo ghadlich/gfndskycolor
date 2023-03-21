@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-# Copyright (c) 2021-2022 Grant Hadlich
+# Copyright (c) 2021-2023 Grant Hadlich
 #
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -21,6 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE. 
+from typing import List, Tuple, Optional, Dict, Any
 import ephem
 import time
 from datetime import datetime, timezone, timedelta
@@ -29,7 +30,34 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 class CityObserver:
-    def __init__(self, lat, long, elev, day):
+    """
+    CityObserver class is a tool to get information about the sun's position and daylight in a particular city.
+
+    Attributes
+    ----------
+    observer : ephem.Observer
+        An ephem.Observer object with the location of the city
+    time_list : list
+        A list of the times of interest for the given location and date
+    sunrise_time_str : str
+        The time of the sunrise in the format "HH:MM:SS"
+    sunset_time_str : str
+        The time of the sunset in the format "HH:MM:SS"
+    day_length : int
+        The length of the day in seconds
+
+    Methods
+    -------
+    get_time_list() -> List[str]
+        Returns a list of times of interest for the current location and date
+    get_sunrise_sunset() -> Tuple[str, str, int]
+        Returns the time of the sunrise, sunset, and length of day for the current location and date
+    create_daylight_plot(output_file: str, day: Optional[datetime] = None, custom_colors: Optional[Dict] = None) -> None
+        Creates a plot of the sun's position over the course of a day, with optional custom colors for different times of day.
+        The plot is saved to the specified output_file.
+    """
+
+    def __init__(self, lat: str, long: str, elev: int, day: str) -> None:
         """
         This class takes a latitude, longitude, and elevation and returns a
         PyEphem Observer object.
@@ -42,6 +70,8 @@ class CityObserver:
             The longitude of the location.
         elev : int
             The elevation of the location.
+        day : str
+            The date and time of the observation in the format of 'yyyy/mm/dd hh:mm'.
         """
         self.city = ephem.Observer()
         self.city.pressure = 0
@@ -50,17 +80,60 @@ class CityObserver:
         self.city.date = day # '2021/09/03 17:00'
         self.city.elev = elev
 
-    def set_horizon_normal(self):
+    def set_horizon_normal(self) -> None:
+        """Sets horizon to normal level"""
         self.city.horizon = '-0:34'
 
-    def set_horizon_civil_twilight(self):
+    def set_horizon_civil_twilight(self) -> None:
+        """Sets horizon to civil twilight level"""
         self.city.horizon = '-6'
 
-    def get_city(self):
+    def get_city(self) -> ephem.Observer:
+        """Returns PyEphem Observer object"""
         return self.city
 
 class SunData:
-    def __init__(self, observer):
+    """
+    A class to calculate sunrise, sunset and daylight information for a given location and time.
+    
+    This class uses the PyEphem library to calculate the position of the sun at a given time and location. 
+    It uses the sunrise and sunset times to calculate the duration of daylight, as well as the start and end of civil twilight.
+    The class also has the capability to create a plot of the elevation of the sun over a given day.
+    
+    Attributes
+    ----------
+    observer : ephem.Observer
+        The observer object containing the latitude, longitude, and elevation of the location.
+    sunrise_time : datetime.datetime
+        The time of sunrise for the current day.
+    sunset_time : datetime.datetime
+        The time of sunset for the current day.
+    civil_twilight_start : datetime.datetime
+        The time civil twilight begins for the current day.
+    civil_twilight_end : datetime.datetime
+        The time civil twilight ends for the current day.
+    day_length : int
+        The duration of daylight in seconds for the current day.
+    time_list : List[str]
+        A list of times in the format 'HH:MM' representing each hour of the day, starting with the start of civil twilight and ending with the end of civil twilight.
+    sunrise_time_str : str
+        The time of sunrise for the current day in the format 'HH:MM:SS'.
+    sunset_time_str : str
+        The time of sunset for the current day in the format 'HH:MM:SS'.
+    
+    Methods
+    -------
+    get_time_list() -> List[str]
+        Returns a list of times in the format 'HH:MM' representing each hour of the day, starting with the start of civil twilight and ending with the end of civil twilight.
+    get_sunrise_sunset() -> Tuple[str, str, int]
+        Returns a tuple containing the time of sunrise, time of sunset, and duration of daylight in seconds for the current day.
+    create_daylight_plot(output_file: str, day: Optional[datetime.datetime] = None, custom_colors: Optional[Dict] = None) -> None
+        Creates a plot of the elevation of the sun over a given day and saves it to the specified output file.
+        If no day is specified, the plot will be created for the current day.
+        If custom colors are specified, the plot will use those colors instead of the default color scheme.
+    """
+
+    def __init__(self, observer) -> None:
         sun = ephem.Sun()
 
         # Save off observer
@@ -126,7 +199,7 @@ class SunData:
 
         self.time_list = time_list
 
-    def get_time_list(self):
+    def get_time_list(self) -> List[str]:
         """
         Returns
         -------
@@ -139,7 +212,7 @@ class SunData:
         """
         return self.time_list
 
-    def get_sunrise_sunset(self):
+    def get_sunrise_sunset(self) -> Tuple[str, str, int]:
         """
         Returns
         -------
@@ -152,8 +225,22 @@ class SunData:
         """
         return self.sunrise_time_str, self.sunset_time_str, self.day_length
 
-    def create_daylight_plot(self, output_file, day = None, custom_colors=None):
-        """ Creates a daylight plot for the current day """
+    def create_daylight_plot(self, output_file: str, day: Optional[datetime] = None, custom_colors: Optional[Dict[str, Any]] = None) -> None:
+        """ Creates a daylight plot for the current day 
+
+        Parameters
+        ----------
+        output_file : str
+            Path of the output file to save the plot
+        day : datetime, optional
+            Day to create the plot for, default is None which uses the current day
+        custom_colors : dict, optional
+            Dictionary containing a list of color values and corresponding data values to use a custom colormap for the plot
+
+        Returns
+        -------
+        None
+        """
 
         # Get current day
         if day == None:
