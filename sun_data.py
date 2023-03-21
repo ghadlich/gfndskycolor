@@ -43,14 +43,14 @@ class CityObserver:
         The time of the sunrise in the format "HH:MM:SS"
     sunset_time_str : str
         The time of the sunset in the format "HH:MM:SS"
-    day_length : int
+    day_length : float
         The length of the day in seconds
 
     Methods
     -------
     get_time_list() -> List[str]
         Returns a list of times of interest for the current location and date
-    get_sunrise_sunset() -> Tuple[str, str, int]
+    get_sunrise_sunset() -> Tuple[str, str, float]
         Returns the time of the sunrise, sunset, and length of day for the current location and date
     create_daylight_plot(output_file: str, day: Optional[datetime] = None, custom_colors: Optional[Dict] = None) -> None
         Creates a plot of the sun's position over the course of a day, with optional custom colors for different times of day.
@@ -112,7 +112,7 @@ class SunData:
         The time civil twilight begins for the current day.
     civil_twilight_end : datetime.datetime
         The time civil twilight ends for the current day.
-    day_length : int
+    day_length : float
         The duration of daylight in seconds for the current day.
     time_list : List[str]
         A list of times in the format 'HH:MM' representing each hour of the day, starting with the start of civil twilight and ending with the end of civil twilight.
@@ -125,7 +125,7 @@ class SunData:
     -------
     get_time_list() -> List[str]
         Returns a list of times in the format 'HH:MM' representing each hour of the day, starting with the start of civil twilight and ending with the end of civil twilight.
-    get_sunrise_sunset() -> Tuple[str, str, int]
+    get_sunrise_sunset() -> Tuple[str, str, float]
         Returns a tuple containing the time of sunrise, time of sunset, and duration of daylight in seconds for the current day.
     create_daylight_plot(output_file: str, day: Optional[datetime.datetime] = None, custom_colors: Optional[Dict] = None) -> None
         Creates a plot of the elevation of the sun over a given day and saves it to the specified output file.
@@ -212,7 +212,7 @@ class SunData:
         """
         return self.time_list
 
-    def get_sunrise_sunset(self) -> Tuple[str, str, int]:
+    def get_sunrise_sunset(self) -> Tuple[str, str, float]:
         """
         Returns
         -------
@@ -220,7 +220,7 @@ class SunData:
             Sunrise time in the format "HH:MM:SS"
         setting_time : str
             Sunset time in the format "HH:MM:SS"
-        day_length : int
+        day_length : float
             Length of day in seconds
         """
         return self.sunrise_time_str, self.sunset_time_str, self.day_length
